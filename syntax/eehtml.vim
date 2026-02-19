@@ -18,9 +18,9 @@ syntax region EEComment start="{!--" end="--}" contains=@Spell
 
 " ─── Module Tags ─────────────────────────────────────────────────────────────
 " {exp:channel:entries param="value" param2='value2'}
+" No keepend — strings containing } must not prematurely end the region
 syntax region EEModuleTag
       \ start="{exp:" end="}"
-      \ keepend
       \ contains=EETagPrefix,EEModuleName,EEMethodName,EEParamName,EEParamStr
       \ containedin=ALLBUT,EEComment
 
@@ -31,14 +31,22 @@ syntax match EEMethodName ":\w\+\ze\([^:{}]\|$\)" contained
 " Closing module tags: {/exp:channel:entries}
 syntax region EEModuleClose
       \ start="{/exp:" end="}"
-      \ keepend
+      \ containedin=ALLBUT,EEComment
+
+" ─── Field Loop Tags with Params ─────────────────────────────────────────────
+" {listing_page_banner_image limit="1"} — non-exp word tag followed by a space
+" Excludes exp: and closing / tags (handled above). Must be defined BEFORE
+" EEConditional/EELayout/EEEmbed so those (defined later) take priority.
+syntax region EEFieldTag
+      \ start="{\(/\|exp:\)\@!\w\+\s" end="}"
+      \ contains=EEParamStr,EEParamName
       \ containedin=ALLBUT,EEComment
 
 " ─── Conditionals ────────────────────────────────────────────────────────────
 " {if condition}, {if:elseif condition}, {if:else}, {/if}
+" \> = Vim word-end boundary (NOT \b which is backspace in Vim regex)
 syntax region EEConditional
       \ start="{if\>" end="}"
-      \ keepend
       \ contains=EECondKeyword,EEParamStr,EEParamName
       \ containedin=ALLBUT,EEComment
 
@@ -46,7 +54,6 @@ syntax match EECondKeyword "if\>" contained
 
 syntax region EEElseIf
       \ start="{if:elseif\>" end="}"
-      \ keepend
       \ contains=EECondKeyword,EEParamStr,EEParamName
       \ containedin=ALLBUT,EEComment
 
@@ -60,15 +67,15 @@ syntax match EEEndif "{/if}"
 " {layout="_main"} {layout:set name="title" value="Home"}  {layout:contents}
 syntax region EELayout
       \ start="{layout[=:]" end="}"
-      \ keepend
       \ contains=EEParamStr,EEParamName
       \ containedin=ALLBUT,EEComment
 
 " ─── Embed Tags ──────────────────────────────────────────────────────────────
 " {embed="_partials/nav" param="value"}
+" No keepend — multi-line embeds with nested {var} inside param strings must
+" not terminate the region at the inner } characters.
 syntax region EEEmbed
       \ start="{embed=" end="}"
-      \ keepend
       \ contains=EEParamStr,EEParamName
       \ containedin=ALLBUT,EEComment
 
@@ -81,7 +88,6 @@ syntax match EEBlockClose "{/\(if\>\|exp:\)\@!\w\+\(:\w\+\)*}"
 " {switch="val1|val2|val3"}, {redirect="404"}, {parse="inward"}
 syntax region EESingleParam
       \ start="{\w\+=['\"]" end="}"
-      \ keepend
       \ contains=EEParamStr
       \ containedin=ALLBUT,EEComment
 
@@ -90,7 +96,6 @@ syntax region EESingleParam
 " Negative lookahead prevents overlap with {exp:...} module tags
 syntax region EEPrefixedTag
       \ start="{\(exp:\)\@!\w\+:\w\+\s" end="}"
-      \ keepend
       \ contains=EEParamStr,EEParamName
       \ containedin=ALLBUT,EEComment
 
@@ -115,6 +120,7 @@ highlight default link EETagPrefix     Special
 highlight default link EEModuleName    Type
 highlight default link EEMethodName    Function
 highlight default link EEModuleClose   Function
+highlight default link EEFieldTag      Function
 highlight default link EEConditional   Conditional
 highlight default link EECondKeyword   Conditional
 highlight default link EEElseIf        Conditional

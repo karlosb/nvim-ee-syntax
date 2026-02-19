@@ -37,15 +37,15 @@ syntax region EEModuleClose
 " ─── Conditionals ────────────────────────────────────────────────────────────
 " {if condition}, {if:elseif condition}, {if:else}, {/if}
 syntax region EEConditional
-      \ start="{if\b" end="}"
+      \ start="{if\>" end="}"
       \ keepend
       \ contains=EECondKeyword,EEParamStr,EEParamName
       \ containedin=ALLBUT,EEComment
 
-syntax match EECondKeyword "if\b" contained
+syntax match EECondKeyword "if\>" contained
 
 syntax region EEElseIf
-      \ start="{if:elseif\b" end="}"
+      \ start="{if:elseif\>" end="}"
       \ keepend
       \ contains=EECondKeyword,EEParamStr,EEParamName
       \ containedin=ALLBUT,EEComment

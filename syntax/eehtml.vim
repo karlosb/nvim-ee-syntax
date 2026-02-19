@@ -90,21 +90,14 @@ syntax match EEBlockClose "{/\(if\>\|exp:\)\@!\w\+\(:\w\+\)*}"
 
 " ─── Single-param tags ───────────────────────────────────────────────────────
 " {switch="val1|val2|val3"}, {redirect="404"}, {parse="inward"}
-" Lookahead \(['"]\)\@= requires " or ' after = without consuming it, so the
-" region body starts AT the quote and EEParamStr closes before }, preventing
-" a runaway region that would swallow the entire file.
-syntax region EESingleParam
-      \ start=/{\w\+=\(['"]\)\@=/ end="}"
-      \ contains=EEParamStr
-      \ containedin=ALLBUT,EEComment
+" REMOVED: caused runaway regions consuming HTML content. Both this region and
+" EEPrefixedTag below competed with EELayout/{layout:set} tags via containedin=ALLBUT,
+" preventing them from closing. Needs redesign before re-adding.
 
 " ─── Non-exp prefixed tags with params ───────────────────────────────────────
 " {field:render_label class="..."} — word:word followed by a space (has params)
-" Negative lookahead prevents overlap with {exp:...} module tags
-syntax region EEPrefixedTag
-      \ start="{\(exp:\)\@!\w\+:\w\+\s" end="}"
-      \ contains=EEParamStr,EEParamName
-      \ containedin=ALLBUT,EEComment
+" REMOVED: caused runaway regions consuming HTML content (see above). Will be
+" re-added once the containedin=ALLBUT interaction with EELayout is resolved.
 
 " ─── Variables ───────────────────────────────────────────────────────────────
 " Nested: {embed:var}, {image:url:filename}, {segment_1:raw}
@@ -119,7 +112,7 @@ syntax match EEVariable "{\w\+}"
 " All EE tag groups that can appear inside string param values.
 " Used by EEParamStr so {if ...} etc. highlight correctly within "..." strings.
 " EEParamStr intentionally excluded to avoid infinite recursion.
-syntax cluster EEInline contains=EEComment,EEModuleTag,EEModuleClose,EEFieldTag,EEConditional,EEElseIf,EEElseTag,EEEndif,EELayout,EEEmbed,EEBlockClose,EESingleParam,EEPrefixedTag,EENestedVar,EEVariable
+syntax cluster EEInline contains=EEComment,EEModuleTag,EEModuleClose,EEFieldTag,EEConditional,EEElseIf,EEElseTag,EEEndif,EELayout,EEEmbed,EEBlockClose,EENestedVar,EEVariable
 
 " ─── Strings and Params (contained) ─────────────────────────────────────────
 " contains=@EEInline so EE tags inside string values are still highlighted
@@ -143,8 +136,6 @@ highlight default link EEEndif         Conditional
 highlight default link EELayout        Include
 highlight default link EEEmbed         Include
 highlight default link EEBlockClose    Delimiter
-highlight default link EESingleParam   Keyword
-highlight default link EEPrefixedTag   Function
 highlight default link EENestedVar     Identifier
 highlight default link EEVariable      Identifier
 highlight default link EEParamStr      String

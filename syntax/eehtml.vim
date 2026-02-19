@@ -112,12 +112,7 @@ syntax match EEVariable "{\w\+}"
 " All EE tag groups that can appear inside string param values.
 " Used by EEParamStr so {if ...} etc. highlight correctly within "..." strings.
 " EEParamStr intentionally excluded to avoid infinite recursion.
-syntax cluster EEInline
-      \ contains=EEComment,EEModuleTag,EEModuleClose,EEFieldTag,
-      \           EEConditional,EEElseIf,EEElseTag,EEEndif,
-      \           EELayout,EEEmbed,EEBlockClose,
-      \           EESingleParam,EEPrefixedTag,
-      \           EENestedVar,EEVariable
+syntax cluster EEInline contains=EEComment,EEModuleTag,EEModuleClose,EEFieldTag,EEConditional,EEElseIf,EEElseTag,EEEndif,EELayout,EEEmbed,EEBlockClose,EESingleParam,EEPrefixedTag,EENestedVar,EEVariable
 
 " ─── Strings and Params (contained) ─────────────────────────────────────────
 " contains=@EEInline so EE tags inside string values are still highlighted

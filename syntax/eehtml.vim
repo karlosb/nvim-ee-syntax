@@ -29,8 +29,11 @@ syntax match EEModuleName "\(exp:\)\@<=\w\+" contained
 syntax match EEMethodName ":\w\+\ze\([^:{}]\|$\)" contained
 
 " Closing module tags: {/exp:channel:entries}
+" contains=EEModuleName,EEMethodName so module/method names are coloured the
+" same as in the opening tag, giving visual consistency between open and close.
 syntax region EEModuleClose
       \ start="{/exp:" end="}"
+      \ contains=EEModuleName,EEMethodName
       \ containedin=ALLBUT,EEComment
 
 " ─── Field Loop Tags with Params ─────────────────────────────────────────────
@@ -72,10 +75,11 @@ syntax region EELayout
 
 " ─── Embed Tags ──────────────────────────────────────────────────────────────
 " {embed="_partials/nav" param="value"}
-" me=e-1: don't consume the opening " in the start match, so EEParamStr can
-" start at the " and properly close before }, preventing a runaway region.
+" Lookahead \(['"]\)\@= requires " or ' after = without consuming it, so the
+" region body starts AT the quote and EEParamStr can match "value" correctly,
+" allowing } to close the region rather than being swallowed by EEParamStr.
 syntax region EEEmbed
-      \ start="{embed="me=e-1 end="}"
+      \ start=/{embed=\(['"]\)\@=/ end="}"
       \ contains=EEParamStr,EEParamName
       \ containedin=ALLBUT,EEComment
 
@@ -86,10 +90,11 @@ syntax match EEBlockClose "{/\(if\>\|exp:\)\@!\w\+\(:\w\+\)*}"
 
 " ─── Single-param tags ───────────────────────────────────────────────────────
 " {switch="val1|val2|val3"}, {redirect="404"}, {parse="inward"}
-" me=e-1: don't consume the opening " in the start match, so EEParamStr can
-" start at the " and properly close before }, preventing a runaway region.
+" Lookahead \(['"]\)\@= requires " or ' after = without consuming it, so the
+" region body starts AT the quote and EEParamStr closes before }, preventing
+" a runaway region that would swallow the entire file.
 syntax region EESingleParam
-      \ start="{\w\+=['\"]"me=e-1 end="}"
+      \ start=/{\w\+=\(['"]\)\@=/ end="}"
       \ contains=EEParamStr
       \ containedin=ALLBUT,EEComment
 

@@ -72,10 +72,10 @@ syntax region EELayout
 
 " ─── Embed Tags ──────────────────────────────────────────────────────────────
 " {embed="_partials/nav" param="value"}
-" No keepend — multi-line embeds with nested {var} inside param strings must
-" not terminate the region at the inner } characters.
+" me=e-1: don't consume the opening " in the start match, so EEParamStr can
+" start at the " and properly close before }, preventing a runaway region.
 syntax region EEEmbed
-      \ start="{embed=" end="}"
+      \ start="{embed="me=e-1 end="}"
       \ contains=EEParamStr,EEParamName
       \ containedin=ALLBUT,EEComment
 
@@ -86,8 +86,10 @@ syntax match EEBlockClose "{/\(if\>\|exp:\)\@!\w\+\(:\w\+\)*}"
 
 " ─── Single-param tags ───────────────────────────────────────────────────────
 " {switch="val1|val2|val3"}, {redirect="404"}, {parse="inward"}
+" me=e-1: don't consume the opening " in the start match, so EEParamStr can
+" start at the " and properly close before }, preventing a runaway region.
 syntax region EESingleParam
-      \ start="{\w\+=['\"]" end="}"
+      \ start="{\w\+=['\"]"me=e-1 end="}"
       \ contains=EEParamStr
       \ containedin=ALLBUT,EEComment
 

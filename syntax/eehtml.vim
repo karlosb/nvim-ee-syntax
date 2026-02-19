@@ -77,6 +77,23 @@ syntax region EEEmbed
 syntax match EEBlockClose "{/\(if\>\|exp:\)\@!\w\+\(:\w\+\)*}"
       \ containedin=ALLBUT,EEComment
 
+" ─── Single-param tags ───────────────────────────────────────────────────────
+" {switch="val1|val2|val3"}, {redirect="404"}, {parse="inward"}
+syntax region EESingleParam
+      \ start="{\w\+=['\"]" end="}"
+      \ keepend
+      \ contains=EEParamStr
+      \ containedin=ALLBUT,EEComment
+
+" ─── Non-exp prefixed tags with params ───────────────────────────────────────
+" {field:render_label class="..."} — word:word followed by a space (has params)
+" Negative lookahead prevents overlap with {exp:...} module tags
+syntax region EEPrefixedTag
+      \ start="{\(exp:\)\@!\w\+:\w\+\s" end="}"
+      \ keepend
+      \ contains=EEParamStr,EEParamName
+      \ containedin=ALLBUT,EEComment
+
 " ─── Variables ───────────────────────────────────────────────────────────────
 " Nested: {embed:var}, {image:url:filename}, {segment_1:raw}
 syntax match EENestedVar "{\w\+:\(\w\+:\)*\w\+}"
@@ -106,6 +123,8 @@ highlight default link EEEndif         Conditional
 highlight default link EELayout        Include
 highlight default link EEEmbed         Include
 highlight default link EEBlockClose    Delimiter
+highlight default link EESingleParam   Keyword
+highlight default link EEPrefixedTag   Function
 highlight default link EENestedVar     Identifier
 highlight default link EEVariable      Identifier
 highlight default link EEParamStr      String

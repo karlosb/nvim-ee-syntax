@@ -35,10 +35,10 @@ syntax region EEModuleClose
 
 " ─── Field Loop Tags with Params ─────────────────────────────────────────────
 " {listing_page_banner_image limit="1"} — non-exp word tag followed by a space
-" Excludes exp: and closing / tags (handled above). Must be defined BEFORE
-" EEConditional/EELayout/EEEmbed so those (defined later) take priority.
+" Excludes exp:, closing /, and if (word boundary) so EEFieldTag never
+" steals {if condition} tags regardless of priority ordering.
 syntax region EEFieldTag
-      \ start="{\(/\|exp:\)\@!\w\+\s" end="}"
+      \ start="{\(/\|exp:\|if\>\)\@!\w\+\s" end="}"
       \ contains=EEParamStr,EEParamName
       \ containedin=ALLBUT,EEComment
 
